@@ -8,7 +8,7 @@ let applyAdd = document.getElementById("applyAdd");
 let applySubtract = document.getElementById("applySubtract");
 let applyMultiply = document.getElementById("applyMultiply");
 let applyDivide = document.getElementById("applyDivide");
-let applyBrightness = document.getElementById("applyBrightness");
+let resetBrightness = document.getElementById("resetBrightness");
 let applyGrayscale = document.getElementById("applyGrayscale");
 
 let addInput = document.getElementById("add");
@@ -120,7 +120,12 @@ const changeBrightness = (value) => {
     else if (temp > 255) LUT[i] = 255;
     else LUT[i] = temp;
   }
-  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  // var imageData = JSON.parse(JSON.s);
+  var imageData = ctx.createImageData(
+    originalImage.width,
+    originalImage.height
+  );
+  imageData.data.set(originalImage.data);
   var arr = imageData.data;
   for (let i = 0; i < arr.length; i += 4) {
     arr[i] = LUT[arr[i]];
@@ -152,6 +157,23 @@ const applyAverageGrayscale = () => {
   for (let i = 0; i < arr.length; i += 4) {
     var sum = arr[i] + arr[i + 1] + arr[i + 2];
     var grayValue = Math.round(sum / 3);
+    arr[i] = grayValue;
+    arr[i + 1] = grayValue;
+    arr[i + 2] = grayValue;
+    arr[i + 3] = 255;
+  }
+  imageData.data = arr;
+  ctx.putImageData(imageData, 0, 0);
+};
+
+const applyLightnessGrayscale = () => {
+  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var arr = imageData.data;
+  for (let i = 0; i < arr.length; i += 4) {
+    var sum =
+      Math.min(arr[i], arr[i + 1], arr[i + 2]) +
+      Math.max(arr[i], arr[i + 1], arr[i + 2]);
+    var grayValue = Math.round(sum / 2);
     arr[i] = grayValue;
     arr[i + 1] = grayValue;
     arr[i + 2] = grayValue;
@@ -207,7 +229,7 @@ applyDivide.addEventListener("click", () => {
   else alert("Pick an image!");
 });
 
-applyBrightness.addEventListener("click", () => {
+brightnessInput.addEventListener("input", () => {
   if (imageUploaded) {
     var value = brightnessInput.value;
     changeBrightness(value);
@@ -220,6 +242,7 @@ applyGrayscale.addEventListener("click", () => {
 
     if (selectedOption === "g1") applyLuminosityGrayscale();
     else if (selectedOption === "g2") applyAverageGrayscale();
+    else if (selectedOption === "g3") applyLightnessGrayscale();
     else alert("Pick grayscale method!");
   } else alert("Pick an image!");
 });
