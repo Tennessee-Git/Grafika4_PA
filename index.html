@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="./script.js" defer></script>
+    <title>Grafika 4</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="sidebar">
+        <h1 class="header">Grafika 4 PA</h1>
+        <div class="inputs">
+          <div class="form-inputs">
+            <input
+              type="file"
+              name="file"
+              id="file"
+              accept="image/jpg image/png"
+            />
+          </div>
+          <div class="form-inputs">
+            <button id="fileButton" class="customButtons long">
+              Load image
+            </button>
+          </div>
+          <h2 class="divider">Modifiers:</h2>
+          <div class="form-inputs">
+            <label for="add" class="customLabel"
+              >Add
+              <button id="applyAdd" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <input type="number" name="add" id="add" min="0" />
+          </div>
+          <div class="form-inputs">
+            <label for="subtract" class="customLabel"
+              >Subtract
+              <button id="applySubtract" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <input type="number" name="subtract" id="subtract" min="0" />
+          </div>
+          <div class="form-inputs">
+            <label for="multiply" class="customLabel"
+              >Multiply
+              <button id="applyMultiply" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <input type="number" name="multiply" id="multiply" min="0.1" />
+          </div>
+          <div class="form-inputs">
+            <label for="divide" class="customLabel"
+              >Divide
+              <button id="applyDivide" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <input type="number" name="divide" id="divide" min="0.1" />
+          </div>
+          <div class="form-inputs">
+            <label for="brightness" class="customLabel"
+              >Brightness
+              <button id="applyBrightness" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <input
+              type="range"
+              name="brightness"
+              id="brightness"
+              min="-100"
+              max="100"
+              value="0"
+              step="1"
+              oninput="brightnessValue.value = this.value"
+            />
+            <output id="brightnessValue" name="brightnessValue" for="brightness"
+              >0</output
+            >
+          </div>
+          <div class="form-inputs">
+            <label for="grayscale" class="customLabel"
+              >Grayscale
+              <button id="applyGrayscale" class="customButtons small">
+                Apply
+              </button></label
+            >
+            <select name="grayscale" id="grayscale">
+              <option value="noGrayscale">------</option>
+              <option value="g1">Luminosity Method</option>
+              <option value="g2">Average Method</option>
+            </select>
+          </div>
+          <h2 class="divider">Filters:</h2>
+          <div class="form-inputs">
+            <input class="customButtons" type="button" value="Average Filter" />
+          </div>
+          <div class="form-inputs">
+            <input class="customButtons" type="button" value="Median Filter" />
+          </div>
+          <div class="form-inputs">
+            <input class="customButtons" type="button" value="Sobel Filter" />
+          </div>
+          <div class="form-inputs">
+            <input
+              class="customButtons"
+              type="button"
+              value="Sharpening Filter"
+            />
+          </div>
+          <div class="form-inputs">
+            <input class="customButtons" type="button" value="Gaussian Blur" />
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <canvas id="canvas" class="canvas" width="1400" height="788"></canvas>
+      </div>
+    </div>
+  </body>
+</html>
