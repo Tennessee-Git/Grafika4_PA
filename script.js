@@ -22,6 +22,9 @@ let brightnessValue = document.getElementById("brightnessValue");
 
 let averageFilterButton = document.getElementById("avgBtn");
 let medianFilterButton = document.getElementById("medBtn");
+let sobelFilterButton = document.getElementById("sobBtn");
+let sharpFilterButton = document.getElementById("sharpBtn");
+let gaussFilterButton = document.getElementById("gaussBtn");
 
 let imageUploaded = false;
 let originalImage;
@@ -121,7 +124,6 @@ const changeBrightness = (value) => {
     else if (temp > 255) LUT[i] = 255;
     else LUT[i] = temp;
   }
-  // var imageData = JSON.parse(JSON.s);
   var imageData = ctx.createImageData(
     originalImage.width,
     originalImage.height
@@ -142,7 +144,9 @@ const applyLuminosityGrayscale = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   var arr = imageData.data;
   for (let i = 0; i < arr.length; i += 4) {
-    var grayValue = 0.3 * arr[i] + 0.59 * arr[i + 1] + 0.11 * arr[i + 2];
+    var grayValue = Math.round(
+      0.3 * arr[i] + 0.59 * arr[i + 1] + 0.11 * arr[i + 2]
+    );
     arr[i] = grayValue;
     arr[i + 1] = grayValue;
     arr[i + 2] = grayValue;
@@ -197,7 +201,9 @@ const applyMedianFilter = () => {
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
   for (let x = 0; x < canvas.width; x++)
     for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = 0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b;
+      arr[y][x] = Math.round(
+        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
+      );
     }
   for (let x = 1; x < canvas.width - 1; x++) {
     for (let y = 1; y < canvas.height - 1; y++) {
@@ -239,7 +245,9 @@ const applySobelFilter = () => {
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
   for (let x = 0; x < canvas.width; x++)
     for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = 0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b;
+      arr[y][x] = Math.round(
+        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
+      );
     }
   applyLinearFilter(arr, canvas.height, canvas.width, mask, true);
 };
@@ -257,12 +265,16 @@ const applyGaussianBlur = () => {
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
   for (let x = 0; x < canvas.width; x++)
     for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = 0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b;
+      arr[y][x] = Math.round(
+        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
+      );
     }
+
   applyLinearFilter(arr, canvas.height, canvas.width, mask, true);
 };
 
 const applyLinearFilter = (image, height, width, mask, grayscale) => {
+  let arr = image;
   if (!grayscale) {
     for (let x = 1; x < width - 1; x++) {
       for (let y = 1; y < height - 1; y++) {
@@ -270,43 +282,84 @@ const applyLinearFilter = (image, height, width, mask, grayscale) => {
           sumG = 0,
           sumB = 0;
         sumR =
-          image[(y - 1, x - 1)].r * mask[0] +
-          image[(y - 1, x)].r * mask[1] +
-          image[(y + 1, x + 1)].r * mask[2] +
-          image[(y, x - 1)].r * mask[3] +
-          image[(y, x).r] * mask[4] +
-          image[(y, x + 1)].r * mask[5] +
-          image[(y + 1, x - 1)].r * mask[6] +
-          image[(y + 1, x)].r * mask[7] +
-          image[(y + 1, x + 1)].r * mask[8];
-        image[y][x] = {
-          r: sumR,
-          g: sumG,
-          b: sumB,
-        };
+          image[y - 1][x - 1].r * mask[0] +
+          image[y - 1][x].r * mask[1] +
+          image[y + 1][x + 1].r * mask[2] +
+          image[y][x - 1].r * mask[3] +
+          image[y][x].r * mask[4] +
+          image[y][x + 1].r * mask[5] +
+          image[y + 1][x - 1].r * mask[6] +
+          image[y + 1][x].r * mask[7] +
+          image[y + 1][x + 1].r * mask[8];
+        sumG =
+          image[y - 1][x - 1].g * mask[0] +
+          image[y - 1][x].g * mask[1] +
+          image[y + 1][x + 1].g * mask[2] +
+          image[y][x - 1].g * mask[3] +
+          image[y][x].g * mask[4] +
+          image[y][x + 1].g * mask[5] +
+          image[y + 1][x - 1].g * mask[6] +
+          image[y + 1][x].g * mask[7] +
+          image[y + 1][x + 1].g * mask[8];
+        sumB =
+          image[y - 1][x - 1].b * mask[0] +
+          image[y - 1][x].b * mask[1] +
+          image[y + 1][x + 1].b * mask[2] +
+          image[y][x - 1].b * mask[3] +
+          image[y][x].b * mask[4] +
+          image[y][x + 1].b * mask[5] +
+          image[y + 1][x - 1].b * mask[6] +
+          image[y + 1][x].b * mask[7] +
+          image[y + 1][x + 1].b * mask[8];
+        // arr[y][x] = {
+        //   r: sumR,
+        //   g: sumG,
+        //   b: sumB,
+        // };
+        arr[y][x] = [sumR, sumG, sumB];
       }
     }
+    console.log(typeof arr[0][0], arr[0][0]);
+    // var imageSrc = new Uint8ClampedArray(4 * width * height);
+    // var index = 0;
+    // for (let i = 0; i < imageSrc.length; i += 4) {
+    //   imageSrc[i] = arr[index / width][index % width].r;
+    //   imageSrc[i + 1] = arr[index / width][index % width].g;
+    //   imageSrc[i + 2] = arr[index / width][index % width].b;
+    //   imageSrc[i + 3] = 255;
+    //   index++;
+    // }
+    // ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
   } else {
-    for (let x = 1; x < canvas.width - 1; x++) {
-      for (let y = 1; y < canvas.height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      for (let y = 1; y < height - 1; y++) {
         var sumGray = 0;
         sumGray =
-          image[(y - 1, x - 1)] * mask[0] +
-          image[(y - 1, x)] * mask[1] +
-          image[(y + 1, x + 1)] * mask[2] +
-          image[(y, x - 1)] * mask[3] +
-          image[(y, x)] * mask[4] +
-          image[(y, x + 1)] * mask[5] +
-          image[(y + 1, x - 1)] * mask[6] +
-          image[(y + 1, x)] * mask[7] +
-          image[(y + 1, x + 1)] * mask[8];
+          image[y - 1][x - 1] * mask[0] +
+          image[y - 1][x] * mask[1] +
+          image[y + 1][x + 1] * mask[2] +
+          image[y][x - 1] * mask[3] +
+          image[y][x] * mask[4] +
+          image[y][x + 1] * mask[5] +
+          image[y + 1][x - 1] * mask[6] +
+          image[y + 1][x] * mask[7] +
+          image[y + 1][x + 1] * mask[8];
         if (sumGray < 0) sumGray = 0;
         if (sumGray > 255) sumGray = 255;
-        image[y][x] = sumGray;
+        arr[y][x] = sumGray;
       }
     }
+    var imageSrc = new Uint8ClampedArray(4 * width * height);
+    var index = 0;
+    for (let i = 0; i < imageSrc.length; i += 4) {
+      imageSrc[i] = arr[(index / width, index % width)];
+      imageSrc[i + 1] = arr[(index / width, index % width)];
+      imageSrc[i + 2] = arr[(index / width, index % width)];
+      imageSrc[i + 3] = 255;
+      index++;
+    }
+    ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
   }
-  convertToImageData(image, height, width);
 };
 
 const converTo2dArray = (imageData, height, width) => {
@@ -332,11 +385,13 @@ const converTo2dArray = (imageData, height, width) => {
 
 const convertToImageData = (array, height, width) => {
   var imageSrc = new Uint8ClampedArray(4 * width * height);
+  var index = 0;
   for (let i = 0; i < imageSrc.length; i += 4) {
-    imageSrc[i] = array[i / 4 / width][(i / 4) % width].r;
-    imageSrc[i + 1] = array[i / 4 / width][(i / 4) % width].g;
-    imageSrc[i + 2] = array[i / 4 / width][(i / 4) % width].b;
+    imageSrc[i] = array[index / width][index % width].r;
+    imageSrc[i + 1] = array[index / width][index % width].g;
+    imageSrc[i + 2] = array[index / width][index % width].b;
     imageSrc[i + 3] = 255;
+    index++;
   }
   ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
 };
@@ -383,14 +438,30 @@ applyGrayscale.addEventListener("click", () => {
 
 averageFilterButton.addEventListener("click", () => {
   if (imageUploaded) {
-    var value = brightnessInput.value;
     applyAverageFilter();
   } else alert("Pick an image!");
 });
 
 medianFilterButton.addEventListener("click", () => {
   if (imageUploaded) {
-    var value = brightnessInput.value;
     applyMedianFilter();
+  } else alert("Pick an image!");
+});
+
+sobelFilterButton.addEventListener("click", () => {
+  if (imageUploaded) {
+    applySobelFilter();
+  } else alert("Pick an image!");
+});
+
+sharpFilterButton.addEventListener("click", () => {
+  if (imageUploaded) {
+    applySharpeningFilter();
+  } else alert("Pick an image!");
+});
+
+gaussFilterButton.addEventListener("click", () => {
+  if (imageUploaded) {
+    applyGaussianBlur();
   } else alert("Pick an image!");
 });
