@@ -190,21 +190,14 @@ const applyLightnessGrayscale = () => {
 
 const applyAverageFilter = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  var value = 1 / 9;
-  var mask = [value, value, value, value, value, value, value, value, value];
+  var mask = [1, 1, 1, 1, 1, 1, 1, 1, 1];
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
-  applyLinearFilter(arr, canvas.height, canvas.width, mask, false);
+  applyLinearFilter(arr, canvas.height, canvas.width, mask, 9);
 };
 
 const applyMedianFilter = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
-  for (let x = 0; x < canvas.width; x++)
-    for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = Math.round(
-        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
-      );
-    }
   for (let x = 1; x < canvas.width - 1; x++) {
     for (let y = 1; y < canvas.height - 1; y++) {
       let arrToSort = [];
@@ -231,7 +224,6 @@ const applyMedianFilter = () => {
     outputArray[i + 3] = 255;
     tempArrIndex++;
   }
-  imageData.data = outputArray;
   ctx.putImageData(
     new ImageData(outputArray, canvas.width, canvas.height),
     0,
@@ -241,135 +233,57 @@ const applyMedianFilter = () => {
 
 const applySobelFilter = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  var mask = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+  var maskY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+  var maskX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
-  for (let x = 0; x < canvas.width; x++)
-    for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = Math.round(
-        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
-      );
-    }
-  applyLinearFilter(arr, canvas.height, canvas.width, mask, true);
+  applyLinearFilter(arr, canvas.height, canvas.width, maskY, 1);
 };
 
 const applySharpeningFilter = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   var mask = [-1, -1, -1, -1, 9, -1, -1, -1, -1];
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
-  applyLinearFilter(arr, canvas.height, canvas.width, mask, false);
+  applyLinearFilter(arr, canvas.height, canvas.width, mask, 1);
 };
 
 const applyGaussianBlur = () => {
   var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   var mask = [1, 2, 1, 2, 4, 2, 1, 2, 1];
   var arr = converTo2dArray(imageData.data, canvas.height, canvas.width);
-  for (let x = 0; x < canvas.width; x++)
-    for (let y = 0; y < canvas.height; y++) {
-      arr[y][x] = Math.round(
-        0.3 * arr[y][x].r + 0.59 * arr[y][x].g + 0.11 * arr[y][x].b
-      );
-    }
-
-  applyLinearFilter(arr, canvas.height, canvas.width, mask, true);
+  applyLinearFilter(arr, canvas.height, canvas.width, mask, 16);
 };
 
-const applyLinearFilter = (image, height, width, mask, grayscale) => {
-  let arr = image;
-  if (!grayscale) {
-    for (let x = 1; x < width - 1; x++) {
-      for (let y = 1; y < height - 1; y++) {
-        var sumR = 0,
-          sumG = 0,
-          sumB = 0;
-        sumR =
-          image[y - 1][x - 1].r * mask[0] +
-          image[y - 1][x].r * mask[1] +
-          image[y + 1][x + 1].r * mask[2] +
-          image[y][x - 1].r * mask[3] +
-          image[y][x].r * mask[4] +
-          image[y][x + 1].r * mask[5] +
-          image[y + 1][x - 1].r * mask[6] +
-          image[y + 1][x].r * mask[7] +
-          image[y + 1][x + 1].r * mask[8];
-        sumG =
-          image[y - 1][x - 1].g * mask[0] +
-          image[y - 1][x].g * mask[1] +
-          image[y + 1][x + 1].g * mask[2] +
-          image[y][x - 1].g * mask[3] +
-          image[y][x].g * mask[4] +
-          image[y][x + 1].g * mask[5] +
-          image[y + 1][x - 1].g * mask[6] +
-          image[y + 1][x].g * mask[7] +
-          image[y + 1][x + 1].g * mask[8];
-        sumB =
-          image[y - 1][x - 1].b * mask[0] +
-          image[y - 1][x].b * mask[1] +
-          image[y + 1][x + 1].b * mask[2] +
-          image[y][x - 1].b * mask[3] +
-          image[y][x].b * mask[4] +
-          image[y][x + 1].b * mask[5] +
-          image[y + 1][x - 1].b * mask[6] +
-          image[y + 1][x].b * mask[7] +
-          image[y + 1][x + 1].b * mask[8];
-        // arr[y][x] = {
-        //   r: sumR,
-        //   g: sumG,
-        //   b: sumB,
-        // };
-        arr[y][x] = [sumR, sumG, sumB];
-      }
-    }
-    console.log(typeof arr[0][0], arr[0][0]);
-    // var imageSrc = new Uint8ClampedArray(4 * width * height);
-    // var index = 0;
-    // for (let i = 0; i < imageSrc.length; i += 4) {
-    //   imageSrc[i] = arr[index / width][index % width].r;
-    //   imageSrc[i + 1] = arr[index / width][index % width].g;
-    //   imageSrc[i + 2] = arr[index / width][index % width].b;
-    //   imageSrc[i + 3] = 255;
-    //   index++;
-    // }
-    // ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
-  } else {
-    for (let x = 1; x < width - 1; x++) {
-      for (let y = 1; y < height - 1; y++) {
-        var sumGray = 0;
-        sumGray =
-          image[y - 1][x - 1] * mask[0] +
-          image[y - 1][x] * mask[1] +
-          image[y + 1][x + 1] * mask[2] +
-          image[y][x - 1] * mask[3] +
-          image[y][x] * mask[4] +
-          image[y][x + 1] * mask[5] +
-          image[y + 1][x - 1] * mask[6] +
-          image[y + 1][x] * mask[7] +
-          image[y + 1][x + 1] * mask[8];
-        if (sumGray < 0) sumGray = 0;
-        if (sumGray > 255) sumGray = 255;
-        arr[y][x] = sumGray;
-      }
-    }
-    var imageSrc = new Uint8ClampedArray(4 * width * height);
-    var index = 0;
-    for (let i = 0; i < imageSrc.length; i += 4) {
-      imageSrc[i] = arr[(index / width, index % width)];
-      imageSrc[i + 1] = arr[(index / width, index % width)];
-      imageSrc[i + 2] = arr[(index / width, index % width)];
-      imageSrc[i + 3] = 255;
-      index++;
-    }
-    ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
+const applyLinearFilter = (image, height, width, mask, maskSum) => {
+  var outputArray = [];
+  for (let i = 0; i < height; i++) {
+    outputArray.push(Array.from(Array(width)).fill(0));
   }
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      outputArray[y][x] = applyMask(image, mask, x, y, maskSum);
+    }
+  }
+  var tempArr = outputArray.flat();
+  var arr = new Uint8ClampedArray(4 * canvas.width * canvas.height);
+  var tempArrIndex = 0;
+  for (let i = 0; i < arr.length; i += 4) {
+    arr[i] = tempArr[tempArrIndex];
+    arr[i + 1] = tempArr[tempArrIndex];
+    arr[i + 2] = tempArr[tempArrIndex];
+    arr[i + 3] = 255;
+    tempArrIndex++;
+  }
+  ctx.putImageData(new ImageData(arr, canvas.width, canvas.height), 0, 0);
 };
 
 const converTo2dArray = (imageData, height, width) => {
   let arr = [];
   for (let i = 0; i < imageData.length; i += 4) {
-    arr.push({
-      r: imageData[i],
-      g: imageData[i + 1],
-      b: imageData[i + 2],
-    });
+    arr.push(
+      Math.round(
+        0.3 * imageData[i] + 0.59 * imageData[i + 1] + 0.11 * imageData[i + 2]
+      )
+    );
   }
   var outputArray = [];
   for (let i = 0; i < height; i++) {
@@ -383,17 +297,19 @@ const converTo2dArray = (imageData, height, width) => {
   return outputArray;
 };
 
-const convertToImageData = (array, height, width) => {
-  var imageSrc = new Uint8ClampedArray(4 * width * height);
-  var index = 0;
-  for (let i = 0; i < imageSrc.length; i += 4) {
-    imageSrc[i] = array[index / width][index % width].r;
-    imageSrc[i + 1] = array[index / width][index % width].g;
-    imageSrc[i + 2] = array[index / width][index % width].b;
-    imageSrc[i + 3] = 255;
-    index++;
+const applyMask = (image, mask, x, y, maskSum) => {
+  let sum = 0,
+    maskIndex = 0;
+  for (let i = y - 1; i <= y + 1; i++) {
+    for (let j = x - 1; j <= x + 1; j++) {
+      sum += image[i][j] * mask[maskIndex];
+      maskIndex++;
+    }
   }
-  ctx.putImageData(new ImageData(imageSrc, width, height), 0, 0);
+  let output = Math.round(sum / maskSum);
+  output = output > 255 ? 255 : output;
+  output = output < 0 ? 0 : output;
+  return output;
 };
 
 fileButton.addEventListener("click", processFile);
